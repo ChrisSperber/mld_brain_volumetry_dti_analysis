@@ -7,6 +7,11 @@ target-version = "py312"
 select = ["E", "F", "W", "I", "N", "PL", "D", "UP", "C90", "B", "Q", "S"]
 ignore = []
 
+[project]
+name = "brain_stats_tools"
+version = "0.1.0"
+requires-python = ">=3.10"
+
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
@@ -17,3 +22,4 @@ package-dir = { "" = "src" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["brain_stats_tools*"]  # finds src/brain_stats_tools and any subpackages
