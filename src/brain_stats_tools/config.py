@@ -21,3 +21,5 @@ MRI_METRICS_VOLUMETRY_LONG_CSV = (
 )
 MRI_METRICS_FA_LONG_CSV = OUTPUT_METRICS_DIR / "mri_outcome_metrics_FA.csv"
 MRI_METRICS_MD_LONG_CSV = OUTPUT_METRICS_DIR / "mri_outcome_metrics_MD.csv"
+
+SUBJECT_EXCLUSION_CSV = Path(__file__).parents[1] / "Exclusions_MLD_segmentation.csv"
