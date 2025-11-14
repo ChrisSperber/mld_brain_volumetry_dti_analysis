@@ -7,6 +7,7 @@ import pandas as pd
 import statsmodels.formula.api as smf
 from scipy.stats import chi2
 
+from brain_stats_tools.config import RNG_SEED
 from brain_stats_tools.utils import Cols
 
 
@@ -23,6 +24,9 @@ class MixedMarkerResult:
     beta_marker: float
     beta_marker_se: float
     beta_marker_pvalue: float
+    r2_delta_ci_low: float | None = None
+    r2_delta_ci_high: float | None = None
+    n_bootstrap: int | None = None
 
 
 def _marginal_r2(result) -> float:
@@ -64,6 +68,9 @@ def fit_marker_mixed_model(  # noqa: PLR0913
     subject_colname: str = Cols.SUBJECT_ID,
     age_colname: str = Cols.AGE,
     sex_colname: str = Cols.SEX,
+    n_bootstrap: int = 0,
+    ci_level: float = 0.95,
+    random_state: int = RNG_SEED,
 ) -> MixedMarkerResult:
     """Fit two linear mixed models with random intercept for subject.
 
@@ -86,7 +93,12 @@ def fit_marker_mixed_model(  # noqa: PLR0913
         Column with age (continuous).
     sex_colname : str
         Column with sex (categorical).
-
+    n_bootstrap: int
+        Number of bootstraps to estimate ΔR² CI
+    ci_level: float
+        Confidence interval, defaults to 0.95
+    random_state: int
+        RNG seed, defaults to config RNG_SEED
 
     Returns
     -------
@@ -140,6 +152,54 @@ def fit_marker_mixed_model(  # noqa: PLR0913
     beta_marker_se = float(result_full.bse[marker_colname])
     beta_marker_pvalue = float(result_full.pvalues[marker_colname])
 
+    # ---- Bootstrap CI for ΔR² (cluster bootstrap over subjects) ----
+    r2_delta_ci_low: float | None = None
+    r2_delta_ci_high: float | None = None
+
+    if n_bootstrap and n_bootstrap > 0:
+        rng = np.random.default_rng(random_state)
+
+        subjects = df_model[subject_colname].unique()
+        n_subjects = subjects.shape[0]
+        r2_delta_boot = []
+
+        for _ in range(n_bootstrap):
+            # resample subjects with replacement
+            boot_subjects = rng.choice(subjects, size=n_subjects, replace=True)
+
+            # build bootstrap sample by concatenating rows of selected subjects
+            boot_df = pd.concat(
+                [df_model[df_model[subject_colname] == s] for s in boot_subjects],
+                ignore_index=True,
+            )
+
+            try:
+                boot_null = smf.mixedlm(
+                    formula_null,
+                    data=boot_df,
+                    groups=boot_df[subject_colname],
+                ).fit(reml=False)
+
+                boot_full = smf.mixedlm(
+                    formula_full,
+                    data=boot_df,
+                    groups=boot_df[subject_colname],
+                ).fit(reml=False)
+
+                boot_r2_null = _marginal_r2(boot_null)
+                boot_r2_full = _marginal_r2(boot_full)
+                r2_delta_boot.append(boot_r2_full - boot_r2_null)
+            except Exception:  # noqa: S112
+                # If a bootstrap sample fails to converge, skip it
+                continue
+
+        if r2_delta_boot:
+            alpha = 1.0 - ci_level
+            lower_q = alpha / 2.0
+            upper_q = 1.0 - alpha / 2.0
+            r2_delta_ci_low = float(np.quantile(r2_delta_boot, lower_q))
+            r2_delta_ci_high = float(np.quantile(r2_delta_boot, upper_q))
+
     return MixedMarkerResult(
         r2_null=r2_null,
         r2_full=r2_full,
@@ -150,4 +210,7 @@ def fit_marker_mixed_model(  # noqa: PLR0913
         beta_marker=beta_marker,
         beta_marker_se=beta_marker_se,
         beta_marker_pvalue=beta_marker_pvalue,
+        r2_delta_ci_low=r2_delta_ci_low,
+        r2_delta_ci_high=r2_delta_ci_high,
+        n_bootstrap=n_bootstrap,
     )

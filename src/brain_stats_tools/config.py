@@ -32,3 +32,5 @@ CLINICAL_DATA_CSV = (
     / "scripts"
     / "b_collect_and_verify_data.csv"
 )
+
+RNG_SEED = 9001
