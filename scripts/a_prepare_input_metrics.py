@@ -75,6 +75,14 @@ mri_metrics_volumetry_long_df[LongDFCols.VARIABLE] = mri_metrics_volumetry_long_
     LongDFCols.VARIABLE
 ].str.replace("-", "_", regex=False)
 
+# replace numeric variable name elements
+mri_metrics_volumetry_long_df[LongDFCols.VARIABLE] = mri_metrics_volumetry_long_df[
+    LongDFCols.VARIABLE
+].str.replace("4th", "Fourth", regex=False)
+mri_metrics_volumetry_long_df[LongDFCols.VARIABLE] = mri_metrics_volumetry_long_df[
+    LongDFCols.VARIABLE
+].str.replace("3rd", "Third", regex=False)
+
 # %%
 # split into data types (region/structure/whole_brain)
 mri_metrics_fa_long_dfs_dict = _split_long_df(mri_metrics_fa_long_df)
