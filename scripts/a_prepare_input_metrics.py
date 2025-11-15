@@ -33,7 +33,7 @@ SUBSTRINGS_TO_DROP_FROM_COLNAMES = [
     "_percent_tiv",
     "_p90_fa",
     "_p10_md",
-    "percent_above_thres_fa",
+    "_percent_above_thres_fa",
 ]
 
 # %%
@@ -72,7 +72,7 @@ mri_metrics_volumetry_long_dfs_dict = _split_long_df(mri_metrics_volumetry_long_
 del mri_metrics_fa_long_df, mri_metrics_md_long_df, mri_metrics_volumetry_long_df
 
 # %%
-# convert to wide tables adn store locally
+# convert to wide tables and store locally
 PREPARED_DATA_DIR.mkdir(exist_ok=True, parents=True)
 
 # FA
