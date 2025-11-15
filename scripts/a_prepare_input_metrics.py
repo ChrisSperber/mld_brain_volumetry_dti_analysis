@@ -62,6 +62,19 @@ for long_df in [
         inplace=True,
     )
 
+# replace - (minus) from variable names and with underscore
+mri_metrics_fa_long_df[LongDFCols.VARIABLE] = mri_metrics_fa_long_df[
+    LongDFCols.VARIABLE
+].str.replace("-", "_", regex=False)
+
+mri_metrics_md_long_df[LongDFCols.VARIABLE] = mri_metrics_md_long_df[
+    LongDFCols.VARIABLE
+].str.replace("-", "_", regex=False)
+
+mri_metrics_volumetry_long_df[LongDFCols.VARIABLE] = mri_metrics_volumetry_long_df[
+    LongDFCols.VARIABLE
+].str.replace("-", "_", regex=False)
+
 # %%
 # split into data types (region/structure/whole_brain)
 mri_metrics_fa_long_dfs_dict = _split_long_df(mri_metrics_fa_long_df)
