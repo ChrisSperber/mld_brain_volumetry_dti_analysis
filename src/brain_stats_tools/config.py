@@ -2,6 +2,9 @@
 
 from pathlib import Path
 
+RNG_SEED = 9001
+MAX_WORKERS = 4
+
 PROJECTS_DIR = Path(__file__).parents[3]
 ORIGINAL_DATA_ROOT_DIR = PROJECTS_DIR / "mld_data"
 TEMPORARY_DATA_DIR = PROJECTS_DIR / "temp_images"
@@ -25,6 +28,7 @@ MRI_METRICS_MD_LONG_CSV = OUTPUT_METRICS_DIR / "mri_outcome_metrics_MD.csv"
 SUBJECT_EXCLUSION_CSV = Path(__file__).parents[1] / "Exclusions_MLD_segmentation.csv"
 
 PREPARED_DATA_DIR = Path(__file__).parents[2] / "prepared_input_data"
+MIXED_MODEL_OUTPUT_DIR = Path(__file__).parents[2] / "mixed_models_results"
 
 CLINICAL_DATA_CSV = (
     PROJECTS_DIR
@@ -32,5 +36,3 @@ CLINICAL_DATA_CSV = (
     / "scripts"
     / "b_collect_and_verify_data.csv"
 )
-
-RNG_SEED = 9001
