@@ -2,10 +2,20 @@
 
 Use mixed linear models to analyse the relationship between brain imaging markers and Gross Motor
 Function Scores (GMFC). Each marker set (for varying metrics FA/MD/volumetry and varying resolution
-level region/structure/whole_brain) is analysed with a mass-univariate test
+level region/structure/whole_brain) is analysed with a mass-univariate test seperately for each
+variable. Computed p-values are not corrected for multiple comparisons in the output data.
+
+In each test, the role of the brain image marker is tested by comparison of two mixed models via
+likelihood ratio test (LRT). The mixed models allow to account for repeated sessions per patient by
+including a random term for subject. The LRT compares the mixed model without the brain image marker
+versus the model with the marker. As an effect size, the ΔR² for marginal R²s (i.e. R²s that ignore
+random effects in the evaluation) comparing both mixed models is given. A confidence interval for
+ΔR² can be computed via bootstrapping, which is computationally expensive and can take up to several
+days.
 
 Outputs:
-    - xxxx
+    - for each marker set, the MixedMarkerResult for each brain marker variable is parsed into a
+        DataFrame and stored as a CSV in MIXED_MODEL_OUTPUT_DIR
 """
 
 # %%
@@ -36,8 +46,13 @@ MIXED_MODEL_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 if N_BOOTSTRAPS_DELTA_R2 > 0:
     print(
-        "Warning: Bootstrapping takes several hours up to days."
+        "WARNING: Bootstrapping takes several hours up to days."
         "Ensure multithreading and choose a small n (e.g. 500)"
+    )
+if N_BOOTSTRAPS_DELTA_R2 > 1000:  # noqa: PLR2004
+    print(
+        f"WARNING: High number of bootstraps ({N_BOOTSTRAPS_DELTA_R2}) will lead to excessive "
+        "computation time of several days!"
     )
 
 
@@ -91,13 +106,13 @@ if __name__ == "__main__":
         results: dict[str, MixedMarkerResult] = {}
 
         if len(brain_marker_cols) == 1:
-            for marker in brain_marker_cols:
-                results[marker] = fit_marker_mixed_model(
-                    df=full_data_df,
-                    marker_colname=marker,
-                    target_var_colname=Cols.GMFC,
-                    n_bootstrap=N_BOOTSTRAPS_DELTA_R2,
-                )
+            marker = brain_marker_cols[0]
+            results[marker] = fit_marker_mixed_model(
+                df=full_data_df,
+                marker_colname=marker,
+                target_var_colname=Cols.GMFC,
+                n_bootstrap=N_BOOTSTRAPS_DELTA_R2,
+            )
         else:
             # parallel over markers
             with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
