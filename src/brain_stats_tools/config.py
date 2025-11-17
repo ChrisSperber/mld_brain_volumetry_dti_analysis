@@ -29,6 +29,7 @@ SUBJECT_EXCLUSION_CSV = Path(__file__).parents[1] / "Exclusions_MLD_segmentation
 
 PREPARED_DATA_DIR = Path(__file__).parents[2] / "prepared_input_data"
 MIXED_MODEL_OUTPUT_DIR = Path(__file__).parents[2] / "mixed_models_results"
+PREDICTION_OUTPUT_DIR = Path(__file__).parents[2] / "prediction_results"
 
 CLINICAL_DATA_CSV = (
     PROJECTS_DIR
