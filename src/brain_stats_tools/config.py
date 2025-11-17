@@ -3,7 +3,7 @@
 from pathlib import Path
 
 RNG_SEED = 9001
-MAX_WORKERS = 4
+MAX_WORKERS = 6
 
 PROJECTS_DIR = Path(__file__).parents[3]
 ORIGINAL_DATA_ROOT_DIR = PROJECTS_DIR / "mld_data"

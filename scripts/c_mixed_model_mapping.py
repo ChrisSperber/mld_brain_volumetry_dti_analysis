@@ -49,7 +49,7 @@ if N_BOOTSTRAPS_DELTA_R2 > 0:
         "WARNING: Bootstrapping takes several hours up to days."
         "Ensure multithreading and choose a small n (e.g. 500)"
     )
-if N_BOOTSTRAPS_DELTA_R2 > 1000:  # noqa: PLR2004
+if N_BOOTSTRAPS_DELTA_R2 > 500:  # noqa: PLR2004
     print(
         f"WARNING: High number of bootstraps ({N_BOOTSTRAPS_DELTA_R2}) will lead to excessive "
         "computation time of several days!"
@@ -94,6 +94,19 @@ def marker_result_to_dict(marker: str, res: MixedMarkerResult) -> dict:
 # run analysis with parallelisation of n markers > 1
 if __name__ == "__main__":
     for csv in csv_files:
+        marker_set_name = csv.stem.replace("metrics_", "")
+        output_name = MIXED_MODEL_OUTPUT_DIR / f"{marker_set_name}_mixed_models.csv"
+
+        print(f"Starting analysis of {marker_set_name}...")
+
+        # skip if file already exists
+        if output_name.exists():
+            print(
+                f"A csv for {marker_set_name} already exists at {output_name}"
+                " and is skipped."
+            )
+            continue
+
         brain_marker_df = pd.read_csv(csv, sep=";")
         brain_marker_cols = brain_marker_df.columns.tolist()
         brain_marker_cols.remove(LongDFCols.BASENAME)
@@ -129,8 +142,6 @@ if __name__ == "__main__":
         rows = [marker_result_to_dict(marker, res) for marker, res in results.items()]
         result_df = pd.DataFrame(rows)
 
-        marker_set_name = csv.stem.replace("metrics_", "")
-        output_name = MIXED_MODEL_OUTPUT_DIR / f"{marker_set_name}_mixed_models.csv"
         result_df.to_csv(output_name, sep=";", index=False)
         print(f"Saved results for {csv.name} -> {output_name}")
 
