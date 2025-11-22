@@ -16,6 +16,8 @@ NOT_APPLICABLE = "Not_applicable"
 PATIENT = "patient"
 CONTROL = "control"
 
+NOT_AVAILABLE = "Not_available"
+
 OUTPUT_METRICS_DIR = PROJECTS_DIR / "mld_MRI_output_metrics"
 CH2_EXAMPLE_PIPELINE_DIR = TEMPORARY_DATA_DIR / "ch2_pipeline_demo"
 
