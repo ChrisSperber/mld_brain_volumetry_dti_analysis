@@ -2,13 +2,16 @@
 
 Outputs:
     - CSV table with various output metrics per condition
+    - R² Swarmplots for each condition
     - xxx
 """
 
 # %%
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import pandas as pd
+import seaborn as sns
 
 from brain_stats_tools.config import NOT_AVAILABLE, PREDICTION_OUTPUT_DIR
 from brain_stats_tools.utils import (
@@ -49,11 +52,15 @@ results_markersets = [
 results_csv_files = list(PREDICTION_OUTPUT_DIR.glob("*.csv"))
 
 # %%
+######################
 # create results table
+
 results_list = []
+marker_csv_paths: list[Path] = []
 
 for markerset in results_markersets:
     marker_csv_path = find_unique_path(results_csv_files, markerset)
+    marker_csv_paths.append(marker_csv_path)
     marker_df = pd.read_csv(marker_csv_path, sep=";")
     mean_r2, sd_r2 = analyse_prediction_r2(marker_df[R2])
     r2_str = f"{mean_r2} ± {sd_r2}"
@@ -106,11 +113,112 @@ output_name = Path(__file__).with_suffix(".csv")
 results_df.to_csv(output_name, index=False, sep=";")
 
 # %%
+##############
 # create plots
-pass
+
+subplot_titles = [
+    "Volume, TIV-adjusted",
+    "Fractional Anisotropy, Median",
+    "Fractional Anisotropy, p90",
+    "Fractional Anisotropy, voxels >0.2",
+    "MD, Median",
+    "MD, p10",
+]
+
+# X-labels per subplot: first only 2 levels, then 3 each
+subplot_level_labels = [
+    ["Structure-Level", "Region-Level"],  # first subplot (2 CSVs)
+    ["Whole-Brain", "Structure-Level", "Region-Level"],  # next 3 CSVs
+    ["Whole-Brain", "Structure-Level", "Region-Level"],
+    ["Whole-Brain", "Structure-Level", "Region-Level"],
+    ["Whole-Brain", "Structure-Level", "Region-Level"],
+    ["Whole-Brain", "Structure-Level", "Region-Level"],
+]
+
+
+def load_r2(csv_path: Path, r2_col: str = R2) -> pd.Series:
+    """Load R² values from CSV and winsorise to [-1, 1]."""
+    df = pd.read_csv(csv_path, sep=";")
+    r2 = df[r2_col].astype(float)
+    r2 = r2.clip(lower=-1.0, upper=1.0)
+    return r2
+
+
+def make_swarmplots(
+    csv_paths: list[Path],
+    subplot_titles: list[str],
+    subplot_level_labels: list[list[str]],
+) -> None:
+    """Create 6 subplots of swarmplots with per-level mean bars."""
+    # 3x2 grid = 6 axes
+    fig, axes = plt.subplots(nrows=3, ncols=2, figsize=(12, 10), sharey=True)
+    axes = axes.flatten()
+
+    start_idx = 0
+    for subplot_idx, ax in enumerate(axes[:6]):
+        # set n marker per plot
+        if subplot_idx == 0:
+            n_this = 2
+        else:
+            n_this = 3
+
+        csv_subset = csv_paths[start_idx : start_idx + n_this]
+        level_labels = subplot_level_labels[subplot_idx]
+        start_idx += n_this
+
+        # Build df: one column for level, one for R²
+        frames: list[pd.DataFrame] = []
+        for label, csv_path in zip(level_labels, csv_subset, strict=True):
+            r2 = load_r2(csv_path)
+            frames.append(pd.DataFrame({"level": label, "r2": r2}))
+
+        plot_df = pd.concat(frames, ignore_index=True)
+
+        # Swarmplot of R² per level
+        sns.swarmplot(
+            data=plot_df,
+            x="level",
+            y="r2",
+            order=level_labels,
+            ax=ax,
+        )
+
+        # Add mean bar
+        means = plot_df.groupby("level")["r2"].mean()
+        x_positions = {level: i for i, level in enumerate(level_labels)}
+        for level, mean in means.items():
+            x = x_positions[level]  # type: ignore
+            ax.hlines(
+                y=mean, xmin=x - 0.35, xmax=x + 0.35, linewidth=3.5, color="black"
+            )
+
+        ax.set_title(subplot_titles[subplot_idx])
+        ax.set_xlabel("")
+        if subplot_idx % 2 == 0:
+            ax.set_ylabel("R²")
+        else:
+            ax.set_ylabel("")
+
+        # Same scaling across all plots
+        ax.set_ylim(0.0, 1.0)
+
+    fig.tight_layout()
+    outname = Path(__file__).parent / f"{Path(__file__).stem}_r2_plots.png"
+    fig.savefig(outname, dpi=300, bbox_inches="tight")
+    plt.show()
+
+
+# call plotting function
+make_swarmplots(
+    csv_paths=marker_csv_paths,
+    subplot_titles=subplot_titles,
+    subplot_level_labels=subplot_level_labels,
+)
 
 # %%
+######################
 # statistical analysis
+
 pass
 
 # %%
