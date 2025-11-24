@@ -1,10 +1,14 @@
 """Utility functions and constants for MLD MRI statistical analysis."""
 
 from dataclasses import dataclass
+from itertools import combinations
+from math import sqrt
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from scipy.stats import ttest_rel
+from statsmodels.stats.anova import AnovaRM
 
 from brain_stats_tools.config import NOT_APPLICABLE
 
@@ -103,6 +107,8 @@ def analyse_prediction_r2(
     mean_r2 = r2_scores.mean()
     std_r2 = r2_scores.std()
 
+    mean_r2 = round(mean_r2, 3)
+    std_r2 = round(std_r2, 3)
     return mean_r2, std_r2
 
 
@@ -128,3 +134,80 @@ def find_unique_path(paths: list[Path], substring: str) -> Path:
         raise ValueError(f"Multiple matches found for {substring}")
     else:
         raise ValueError(f"No matches found for {substring}")
+
+
+@dataclass
+class RmAnovaResult:
+    """Results of a one-way repeated-measures ANOVA with post-hoc tests."""
+
+    anova_table: pd.DataFrame  # statsmodels AnovaRM table
+    pairwise: pd.DataFrame  # one row per pairwise comparison
+
+
+def rm_anova_with_posthoc(
+    df: pd.DataFrame,
+    cond_cols: list[str],
+) -> RmAnovaResult:
+    """Run one-way repeated-measures ANOVA and Bonferroni-corrected t-tests.
+
+    Args:
+        df: wide-format DataFrame, each row = subject, each cond_col = condition.
+        cond_cols: names of the repeated-measures condition columns.
+
+    Returns:
+        RmAnovaResult with ANOVA table, partial eta², and pairwise results.
+
+    """
+    df = df.copy()
+    df["subject"] = np.arange(len(df))
+
+    # Long format for AnovaRM
+    long_df = df.melt(
+        id_vars="subject",
+        value_vars=cond_cols,
+        var_name="condition",
+        value_name="score",
+    )
+
+    # Repeated-measures ANOVA
+    anova = AnovaRM(
+        data=long_df,
+        depvar="score",
+        subject="subject",
+        within=["condition"],
+    ).fit()
+    anova_table = anova.anova_table
+
+    # Pairwise post-hoc tests (paired t-tests, Bonferroni corrected)
+    pairs = list(combinations(cond_cols, 2))
+    m = len(pairs)  # number of comparisons
+
+    rows = []
+    for c1, c2 in pairs:
+        pair_df = df[[c1, c2]].dropna()
+        x = pair_df[c1].to_numpy()
+        y = pair_df[c2].to_numpy()
+
+        t_stat, p_raw = ttest_rel(x, y)
+        p_bonf = min(p_raw * m, 1.0)
+        n = len(pair_df)
+        d_z = t_stat / sqrt(n) if n > 0 else np.nan
+
+        rows.append(
+            {
+                "cond1": c1,
+                "cond2": c2,
+                "n": n,
+                "t": float(t_stat),
+                "p_raw": float(p_raw),
+                "p_bonf": float(p_bonf),
+                "cohens_dz": float(d_z),
+            }
+        )
+
+    pairwise_df = pd.DataFrame(rows)
+
+    return RmAnovaResult(
+        anova_table=anova_table,
+        pairwise=pairwise_df,
+    )

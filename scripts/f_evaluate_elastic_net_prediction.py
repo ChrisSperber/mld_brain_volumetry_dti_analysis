@@ -3,7 +3,7 @@
 Outputs:
     - CSV table with various output metrics per condition
     - R² Swarmplots for each condition
-    - xxx
+    - statistical comparison if numerical top conditions per variable (Volumetry vs. FA vs. MD)
 """
 
 # %%
@@ -18,6 +18,7 @@ from brain_stats_tools.utils import (
     PredAnalysisOutputCols,
     analyse_prediction_r2,
     find_unique_path,
+    rm_anova_with_posthoc,
 )
 
 # column names in the results CSVs
@@ -218,7 +219,41 @@ make_swarmplots(
 # %%
 ######################
 # statistical analysis
+# For accessability, the analysis is limited to the numerically best performing marker sets per
+# variable
 
-pass
+statistical_analysis_markersets = [
+    "volumetry_variable_tiv_level_Region",
+    "FA_variable_percent_above_thres_level_Region",
+    "MD_variable_p10_level_Region",
+]
+
+cols = {}
+for markerset in statistical_analysis_markersets:
+    csv_path = find_unique_path(results_csv_files, markerset)
+    marker_df = pd.read_csv(csv_path, sep=";")
+    r2_scores = marker_df[R2].clip(lower=-1, upper=1)
+    cols[markerset] = r2_scores
+
+stat_analysis_df = pd.DataFrame(cols)
+
+anova_results = rm_anova_with_posthoc(stat_analysis_df, statistical_analysis_markersets)
+print(anova_results.anova_table)
+print(anova_results.pairwise)
+
+# write results to txt file
+outname = Path(__file__).parent / f"{Path(__file__).stem}_anova_results.txt"
+with open(outname, "w", encoding="utf-8") as f:
+    # ANOVA table
+    f.write("ANOVA results\n")
+    f.write("=============\n")
+    f.write(anova_results.anova_table.to_string())
+    f.write("\n\n")
+
+    # Pairwise tests
+    f.write("Post-hoc pairwise comparisons\n")
+    f.write("================================\n")
+    f.write(anova_results.pairwise.to_string(index=False))
+    f.write("\n")
 
 # %%

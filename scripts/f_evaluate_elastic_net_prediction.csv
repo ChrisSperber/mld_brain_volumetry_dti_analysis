@@ -1,0 +1,18 @@
+Data_Modality;Variable;Data_Resolution_Level;Mean_R2;SD_R2;R2 Mean_SD;Mean_Ratio_Nonzero_Vars;Most_common_top_predictor_1;Most_common_top_predictor_2;Most_common_top_predictor_3;Most_common_top_predictor_4;Most_common_top_predictor_5
+volumetry;tiv;Structure;0.211;0.342;0.211 ± 0.342;5.8/11;Subcortical_Deep_Gray_76.8%;Occipital_16.4%;Cerebellum_6.8%;Not_available;Not_available
+volumetry;tiv;Region;0.581;0.298;0.581 ± 0.298;35.8/98;ctx_rh_frontalpole_48.0%;Right_Inf_Lat_Vent_12.8%;ctx_rh_medialorbitofrontal_11.2%;ctx_rh_pericalcarine_10.0%;ctx_lh_precentral_6.4%
+FA;median;Whole_Brain;0.327;0.319;0.327 ± 0.319;1.0/1;WM_all_100.0%;Not_available;Not_available;Not_available;Not_available
+FA;median;Structure;0.569;0.303;0.569 ± 0.303;5.7/7;Occipital_61.6%;Frontal_29.6%;Subcortical_Deep_Gray_5.6%;Parietal_3.2%;Not_available
+FA;median;Region;0.645;0.295;0.645 ± 0.295;42.6/84;ctx_rh_pericalcarine_23.6%;ctx_lh_pericalcarine_17.6%;Left_VentralDC_17.6%;ctx_rh_lingual_17.2%;Left_Pallidum_8.4%
+FA;p90;Whole_Brain;0.428;0.317;0.428 ± 0.317;1.0/1;WM_all_100.0%;Not_available;Not_available;Not_available;Not_available
+FA;p90;Structure;0.594;0.299;0.594 ± 0.299;4.5/7;Occipital_98.0%;Frontal_1.2%;Parietal_0.4%;Subcortical_Deep_Gray_0.4%;Not_available
+FA;p90;Region;0.632;0.311;0.632 ± 0.311;32.9/84;Left_VentralDC_50.8%;ctx_rh_lingual_13.2%;ctx_rh_pericalcarine_8.0%;ctx_lh_cuneus_6.0%;Left_Thalamus_4.4%
+FA;percent_above_thres;Whole_Brain;0.361;0.339;0.361 ± 0.339;1.0/1;WM_all_100.0%;Not_available;Not_available;Not_available;Not_available
+FA;percent_above_thres;Structure;0.584;0.294;0.584 ± 0.294;5.7/7;Occipital_86.8%;Frontal_8.8%;Parietal_4.0%;Subcortical_Deep_Gray_0.4%;Not_available
+FA;percent_above_thres;Region;0.7;0.251;0.7 ± 0.251;36.8/84;Right_VentralDC_50.0%;ctx_rh_pericalcarine_17.6%;Left_Pallidum_10.8%;ctx_rh_lingual_9.6%;ctx_lh_fusiform_4.8%
+MD;median;Whole_Brain;0.139;0.305;0.139 ± 0.305;1.0/1;WM_all_100.0%;Not_available;Not_available;Not_available;Not_available
+MD;median;Structure;0.161;0.397;0.161 ± 0.397;5.4/7;Occipital_47.6%;Insula_37.2%;Subcortical_Deep_Gray_12.8%;Frontal_1.6%;Parietal_0.8%
+MD;median;Region;0.295;0.453;0.295 ± 0.453;32.9/84;ctx_rh_pericalcarine_45.6%;Right_VentralDC_24.0%;Right_Pallidum_8.4%;ctx_lh_transversetemporal_7.2%;Left_VentralDC_5.6%
+MD;p10;Whole_Brain;0.09;0.277;0.09 ± 0.277;1.0/1;WM_all_100.0%;Not_available;Not_available;Not_available;Not_available
+MD;p10;Structure;0.139;0.392;0.139 ± 0.392;3.5/7;Subcortical_Deep_Gray_100.0%;Not_available;Not_available;Not_available;Not_available
+MD;p10;Region;0.383;0.304;0.383 ± 0.304;27.0/84;Left_VentralDC_33.6%;Right_VentralDC_28.0%;ctx_rh_pericalcarine_22.4%;Right_Thalamus_7.6%;Left_Thalamus_4.4%
