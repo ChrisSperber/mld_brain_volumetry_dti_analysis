@@ -1,6 +1,7 @@
 # Custom settings
 .vscode/
 *.png
+*.nii.gz
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -5,8 +5,10 @@ from itertools import combinations
 from math import sqrt
 from pathlib import Path
 
+import nibabel as nib
 import numpy as np
 import pandas as pd
+from nibabel.nifti1 import Nifti1Image
 from scipy.stats import ttest_rel
 from statsmodels.stats.anova import AnovaRM
 
@@ -211,3 +213,40 @@ def rm_anova_with_posthoc(
         anova_table=anova_table,
         pairwise=pairwise_df,
     )
+
+
+def reassign_consecutive_labels(input_array: np.ndarray) -> np.ndarray:
+    """Reassigns consecutive integer labels starting from 1, keeping 0 as it is.
+
+    Args:
+        input_array (np.ndarray): An array containing the original labels.
+
+    Returns:
+        np.ndarray: A new array with reassigned consecutive integer labels, keeping 0.
+
+    """
+    unique_labels = np.unique(input_array)
+    unique_labels_no_zero = unique_labels[unique_labels != 0]
+    label_mapping = {label: idx + 1 for idx, label in enumerate(unique_labels_no_zero)}
+    output_array = np.vectorize(lambda x: label_mapping.get(x, 0))(input_array)
+
+    return output_array
+
+
+def load_nifti(path: str | Path) -> Nifti1Image:
+    """Load NIFTI Wrapper with typechecking to silence Pylance warnings."""
+    img = nib.load(str(path))  # pyright: ignore[reportPrivateImportUsage]
+    if not isinstance(img, Nifti1Image):
+        raise TypeError("Unexpected image type")
+    return img
+
+
+def save_nifti(nifti: Nifti1Image, outname: Path) -> None:
+    """Save NIFTI Wrapper to silence Pylance warnings.
+
+    Args:
+        nifti: Nifti image.
+        outname: Out path.
+
+    """
+    nib.save(nifti, outname)  # pyright: ignore[reportPrivateImportUsage]

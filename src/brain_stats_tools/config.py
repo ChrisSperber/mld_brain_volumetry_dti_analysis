@@ -39,3 +39,13 @@ CLINICAL_DATA_CSV = (
     / "scripts"
     / "b_collect_and_verify_data.csv"
 )
+SEGMENTATION_LABELS_CSV = (
+    PROJECTS_DIR
+    / "metachromatic_leukodystrophy_mri_processing"
+    / "scripts"
+    / "g_fetch_freesurfer_labelmap.csv"
+)
+
+SEGMENTATION_VISUALISATION_NIFTI_DIR = (
+    Path(__file__).parents[2] / "segmentation_visualisation_images"
+)
