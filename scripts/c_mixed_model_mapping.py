@@ -29,12 +29,14 @@ from brain_stats_tools.config import (
     MIXED_MODEL_OUTPUT_DIR,
     PREPARED_DATA_DIR,
 )
-from brain_stats_tools.mixed_model import MixedMarkerResult, fit_marker_mixed_model
+from brain_stats_tools.mixed_model import (
+    N_BOOTSTRAPS_DELTA_R2,
+    MixedMarkerResult,
+    fit_marker_mixed_model,
+)
 from brain_stats_tools.utils import Cols, LongDFCols
 
 CLINICAL_DATA_CLEANED_CSV = Path(__file__).parent / "b_fetch_clinical_data.csv"
-N_BOOTSTRAPS_DELTA_R2 = 500
-
 
 # %%
 # list all CSV files with brain markers

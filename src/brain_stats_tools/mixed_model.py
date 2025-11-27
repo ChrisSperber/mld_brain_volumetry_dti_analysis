@@ -10,6 +10,8 @@ from scipy.stats import chi2
 from brain_stats_tools.config import RNG_SEED
 from brain_stats_tools.utils import Cols
 
+N_BOOTSTRAPS_DELTA_R2 = 500
+
 
 @dataclass
 class MixedMarkerResult:
