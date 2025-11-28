@@ -227,7 +227,7 @@ else:
 
     full_data_df = brain_marker_df.merge(
         right=clinical_data_df,
-        on=LongDFCols.BASENAME,
+        on=[LongDFCols.BASENAME, Cols.MRI_SCORE],
         validate="one_to_one",
     )
 
@@ -267,7 +267,9 @@ else:
     brain_marker_cols = brain_marker_df.columns.tolist()
     brain_marker_cols.remove(LongDFCols.BASENAME)
     full_data_df = brain_marker_df.merge(
-        right=clinical_data_df, on=LongDFCols.BASENAME, validate="one_to_one"
+        right=clinical_data_df,
+        on=[LongDFCols.BASENAME, Cols.MRI_SCORE],
+        validate="one_to_one",
     )
 
     # run models for each marker
