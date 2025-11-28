@@ -10,6 +10,10 @@ from skopt.space import Real
 
 from brain_stats_tools.config import RNG_SEED
 
+N_PREDICTION_REPS = 250  # number of repeated cross-validations per marker set
+TEST_SIZE_RATIO = 0.2
+NONZERO_COEFF_THRESHOLD = 1e-4  # threshold to identify non-zero coefficients
+
 BAYESIAN_OPTIMISATION_ITERATIONS = 50
 
 

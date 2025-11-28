@@ -24,14 +24,13 @@ from brain_stats_tools.config import (
     PREPARED_DATA_DIR,
 )
 from brain_stats_tools.elastic_net_utils import (
+    N_PREDICTION_REPS,
+    NONZERO_COEFF_THRESHOLD,
+    TEST_SIZE_RATIO,
     fit_elastic_net_bayes_opt,
     train_test_split_indices,
 )
 from brain_stats_tools.utils import Cols, LongDFCols
-
-N_PREDICTION_REPS = 250  # number of repeated cross-validations per marker set
-TEST_SIZE_RATIO = 0.2
-NONZERO_COEFF_THRESHOLD = 1e-4  # threshold to identify non-zero coefficients
 
 CLINICAL_DATA_CLEANED_CSV = Path(__file__).parent / "b_fetch_clinical_data.csv"
 
