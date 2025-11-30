@@ -1,0 +1,18 @@
+ANOVA results
+=============
+              F Value  Num DF  Den DF         Pr > F
+condition  472.067164     4.0   996.0  3.547760e-228
+
+Post-hoc pairwise comparisons
+================================
+                                       cond1                                        cond2   n          t        p_raw       p_bonf  cohens_dz
+         volumetry_variable_tiv_level_Region FA_variable_percent_above_thres_level_Region 250  -8.391910 3.621122e-15 3.621122e-14  -0.530751
+         volumetry_variable_tiv_level_Region                 MD_variable_p10_level_Region 250  12.138532 6.056515e-27 6.056515e-26   0.767708
+         volumetry_variable_tiv_level_Region                MRIscore_variable_na_level_na 250  20.774611 2.718484e-56 2.718484e-55   1.313902
+         volumetry_variable_tiv_level_Region       volumetryFA_variable_combined_level_na 250 -15.227051 1.884129e-37 1.884129e-36  -0.963043
+FA_variable_percent_above_thres_level_Region                 MD_variable_p10_level_Region 250  20.796220 2.305917e-56 2.305917e-55   1.315268
+FA_variable_percent_above_thres_level_Region                MRIscore_variable_na_level_na 250  27.760066 3.465954e-78 3.465954e-77   1.755701
+FA_variable_percent_above_thres_level_Region       volumetryFA_variable_combined_level_na 250  -5.965980 8.305969e-09 8.305969e-08  -0.377322
+                MD_variable_p10_level_Region                MRIscore_variable_na_level_na 250  12.881758 1.938879e-29 1.938879e-28   0.814714
+                MD_variable_p10_level_Region       volumetryFA_variable_combined_level_na 250 -26.024593 5.472597e-73 5.472597e-72  -1.645940
+               MRIscore_variable_na_level_na       volumetryFA_variable_combined_level_na 250 -32.047919 2.486589e-90 2.486589e-89  -2.026888

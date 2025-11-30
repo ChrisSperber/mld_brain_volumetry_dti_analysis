@@ -16,3 +16,5 @@ MD;median;Region;0.295;0.453;0.295 ± 0.453;32.9/84;ctx_rh_pericalcarine_45.6%;R
 MD;p10;Whole_Brain;0.09;0.277;0.09 ± 0.277;1.0/1;WM_all_100.0%;Not_available;Not_available;Not_available;Not_available
 MD;p10;Structure;0.139;0.392;0.139 ± 0.392;3.5/7;Subcortical_Deep_Gray_100.0%;Not_available;Not_available;Not_available;Not_available
 MD;p10;Region;0.383;0.304;0.383 ± 0.304;27.0/84;Left_VentralDC_33.6%;Right_VentralDC_28.0%;ctx_rh_pericalcarine_22.4%;Right_Thalamus_7.6%;Left_Thalamus_4.4%
+MRIscore;na;na;0.084;0.265;0.084 ± 0.265;1.0/1;MRI_Score_100.0%;Not_available;Not_available;Not_available;Not_available
+volumetryFA;combined;na;0.754;0.24;0.754 ± 0.24;38.8/182;ctx_rh_frontalpole_x_23.2%;ctx_lh_pericalcarine_y_20.8%;ctx_lh_transversetemporal_y_17.2%;ctx_rh_medialorbitofrontal_x_17.2%;Right_VentralDC_y_12.4%

@@ -45,6 +45,8 @@ results_markersets = [
     "MD_variable_p10_level_Whole_Brain",
     "MD_variable_p10_level_Structure",
     "MD_variable_p10_level_Region",
+    "MRIscore_variable_na_level_na",
+    "volumetryFA_variable_combined_level_na",
 ]
 
 
@@ -124,9 +126,11 @@ subplot_titles = [
     "Fractional Anisotropy, voxels >0.2",
     "MD, Median",
     "MD, p10",
+    "MRI-Score",
+    "Volume, TIV-adj. + Frac. Anisotropy, voxels >0.2",
 ]
 
-# X-labels per subplot: first only 2 levels, then 3 each
+# X-labels per subplot
 subplot_level_labels = [
     ["Structure-Level", "Region-Level"],  # first subplot (2 CSVs)
     ["Whole-Brain", "Structure-Level", "Region-Level"],  # next 3 CSVs
@@ -134,6 +138,8 @@ subplot_level_labels = [
     ["Whole-Brain", "Structure-Level", "Region-Level"],
     ["Whole-Brain", "Structure-Level", "Region-Level"],
     ["Whole-Brain", "Structure-Level", "Region-Level"],
+    ["xx-pt scoring scale"],
+    ["Region-Level"],
 ]
 
 
@@ -150,16 +156,17 @@ def make_swarmplots(
     subplot_titles: list[str],
     subplot_level_labels: list[list[str]],
 ) -> None:
-    """Create 6 subplots of swarmplots with per-level mean bars."""
-    # 3x2 grid = 6 axes
-    fig, axes = plt.subplots(nrows=3, ncols=2, figsize=(12, 10), sharey=True)
+    """Create 8 subplots of swarmplots with per-level mean bars."""
+    fig, axes = plt.subplots(nrows=4, ncols=2, figsize=(10, 10), sharey=True)
     axes = axes.flatten()
 
     start_idx = 0
-    for subplot_idx, ax in enumerate(axes[:6]):
+    for subplot_idx, ax in enumerate(axes[:8]):
         # set n marker per plot
         if subplot_idx == 0:
             n_this = 2
+        elif subplot_idx > 5:  # noqa: PLR2004
+            n_this = 1
         else:
             n_this = 3
 
@@ -167,7 +174,6 @@ def make_swarmplots(
         level_labels = subplot_level_labels[subplot_idx]
         start_idx += n_this
 
-        # Build df: one column for level, one for R²
         frames: list[pd.DataFrame] = []
         for label, csv_path in zip(level_labels, csv_subset, strict=True):
             r2 = load_r2(csv_path)
@@ -175,7 +181,6 @@ def make_swarmplots(
 
         plot_df = pd.concat(frames, ignore_index=True)
 
-        # Swarmplot of R² per level
         sns.swarmplot(
             data=plot_df,
             x="level",
@@ -184,14 +189,11 @@ def make_swarmplots(
             ax=ax,
         )
 
-        # Add mean bar
         means = plot_df.groupby("level")["r2"].mean()
         x_positions = {level: i for i, level in enumerate(level_labels)}
         for level, mean in means.items():
             x = x_positions[level]  # type: ignore
-            ax.hlines(
-                y=mean, xmin=x - 0.35, xmax=x + 0.35, linewidth=3.5, color="black"
-            )
+            ax.hlines(y=mean, xmin=x - 0.35, xmax=x + 0.35, linewidth=3, color="black")
 
         ax.set_title(subplot_titles[subplot_idx])
         ax.set_xlabel("")
@@ -199,11 +201,21 @@ def make_swarmplots(
             ax.set_ylabel("R²")
         else:
             ax.set_ylabel("")
-
-        # Same scaling across all plots
         ax.set_ylim(0.0, 1.0)
 
     fig.tight_layout()
+
+    # shrink width of last row only (row index 3 -> subplot_idx 6,7)
+    axes_2d = axes.reshape(4, 2)
+    for ax in axes_2d[3, :]:
+        pos = ax.get_position()
+        # choose how much narrower you want them
+        new_width = pos.width * 0.5
+        x_shift = (pos.width - new_width) / 2
+        ax.set_position(
+            [pos.x0 + x_shift, pos.y0, new_width, pos.height]  # x0, y0, width, height
+        )
+
     outname = Path(__file__).parent / f"{Path(__file__).stem}_r2_plots.png"
     fig.savefig(outname, dpi=300, bbox_inches="tight")
     plt.show()
@@ -226,6 +238,8 @@ statistical_analysis_markersets = [
     "volumetry_variable_tiv_level_Region",
     "FA_variable_percent_above_thres_level_Region",
     "MD_variable_p10_level_Region",
+    "MRIscore_variable_na_level_na",
+    "volumetryFA_variable_combined_level_na",
 ]
 
 cols = {}
