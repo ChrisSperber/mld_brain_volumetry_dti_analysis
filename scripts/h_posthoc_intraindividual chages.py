@@ -119,8 +119,8 @@ for var_col in correl_var_cols:
     tau, p = kendalltau(var_series, gmfc_series)
     correl_result = {
         "Variable": var_col,
-        "Tau": tau,
-        "p-value": p,
+        "Tau": round(float(tau), 3),  # type: ignore
+        "p-value": round(float(p), 3),  # type: ignore
     }
     correl_results.append(correl_result)
 
