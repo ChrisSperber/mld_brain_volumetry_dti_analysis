@@ -26,12 +26,15 @@ MRI_METRICS_VOLUMETRY_LONG_CSV = (
 )
 MRI_METRICS_FA_LONG_CSV = OUTPUT_METRICS_DIR / "mri_outcome_metrics_FA.csv"
 MRI_METRICS_MD_LONG_CSV = OUTPUT_METRICS_DIR / "mri_outcome_metrics_MD.csv"
+MRI_METRICS_MTR_LONG_CSV = OUTPUT_METRICS_DIR / "mri_outcome_metrics_MTR.csv"
 
 SUBJECT_EXCLUSION_CSV = Path(__file__).parents[1] / "Exclusions_MLD_segmentation.csv"
 
 PREPARED_DATA_DIR = Path(__file__).parents[2] / "prepared_input_data"
+PREPARED_DATA_DIR_MTR = Path(__file__).parents[2] / "prepared_input_data_mtr"
 MIXED_MODEL_OUTPUT_DIR = Path(__file__).parents[2] / "mixed_models_results"
 PREDICTION_OUTPUT_DIR = Path(__file__).parents[2] / "prediction_results"
+PREDICTION_OUTPUT_DIR_MTR = Path(__file__).parents[2] / "prediction_results_mtr"
 
 CLINICAL_DATA_CSV = (
     PROJECTS_DIR
