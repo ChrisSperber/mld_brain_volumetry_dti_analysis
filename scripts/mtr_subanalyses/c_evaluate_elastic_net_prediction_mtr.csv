@@ -1,0 +1,7 @@
+Data_Modality;Variable;Data_Resolution_Level;Mean_R2;SD_R2;R2 Mean_SD;Mean_Ratio_Nonzero_Vars;Most_common_top_predictor_1;Most_common_top_predictor_2;Most_common_top_predictor_3;Most_common_top_predictor_4;Most_common_top_predictor_5
+MTR;median;Whole_Brain;0.185;0.316;0.185 ± 0.316;1.0/1;WM_all_100.0%;Not_available;Not_available;Not_available;Not_available
+MTR;median;Structure;0.19;0.372;0.19 ± 0.372;5.2/7;Occipital_67.6%;Frontal_9.6%;Temporal_9.2%;Subcortical_Deep_Gray_3.6%;Insula_3.6%
+MTR;median;Region;0.311;0.409;0.311 ± 0.409;43.8/84;ctx_rh_frontalpole_46.0%;ctx_lh_temporalpole_19.2%;ctx_rh_medialorbitofrontal_10.0%;Right_Thalamus_5.2%;ctx_rh_pericalcarine_3.6%
+MTR;p10;Whole_Brain;0.214;0.329;0.214 ± 0.329;1.0/1;WM_all_100.0%;Not_available;Not_available;Not_available;Not_available
+MTR;p10;Structure;0.151;0.396;0.151 ± 0.396;6.5/7;Subcortical_Deep_Gray_52.0%;Occipital_23.6%;Cingulate_10.8%;Parietal_4.4%;Frontal_4.4%
+MTR;p10;Region;0.079;0.481;0.079 ± 0.481;37.6/84;ctx_rh_postcentral_42.8%;ctx_rh_frontalpole_25.2%;ctx_lh_bankssts_5.2%;ctx_rh_paracentral_4.8%;ctx_lh_frontalpole_4.8%
