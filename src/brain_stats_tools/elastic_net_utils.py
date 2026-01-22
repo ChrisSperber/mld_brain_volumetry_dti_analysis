@@ -2,6 +2,7 @@
 
 import numpy as np
 from sklearn.linear_model import ElasticNet
+from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
@@ -76,3 +77,63 @@ def fit_elastic_net_bayes_opt(
     )
     opt.fit(x, y)
     return opt.best_estimator_  # pyright: ignore[reportAttributeAccessIssue]
+
+
+# %%
+# define helper for parallelisation
+def _run_prediction(  # noqa: PLR0913
+    split_id: int,
+    x: np.ndarray,
+    y: np.ndarray,
+    n_samples: int,
+    marker_set_name: str,
+    predictor_names: list[str],
+) -> dict[str, object]:
+    train_idx, test_idx = train_test_split_indices(
+        n=n_samples,
+        test_ratio=TEST_SIZE_RATIO,
+        seed=split_id,
+    )
+
+    x_train, x_test = x[train_idx], x[test_idx]
+    y_train, y_test = y[train_idx], y[test_idx]
+
+    # Fit model on training data
+    model = fit_elastic_net_bayes_opt(x_train, y_train)
+
+    # Test predictions
+    y_pred = model.predict(x_test)
+    r2 = float(r2_score(y_test, y_pred))
+    mae = float(mean_absolute_error(y_test, y_pred))
+
+    # Extract coefficients from the ElasticNet step inside the pipeline
+    elastic = model.named_steps[  # pyright: ignore[reportAttributeAccessIssue]
+        "elasticnet"
+    ]
+    coefs = elastic.coef_  # shape: (n_features,)
+
+    # Sanity check: coefficients should align with predictor_names
+    assert coefs.shape[0] == len(predictor_names)  # noqa: S101
+
+    abs_coefs = np.abs(coefs)
+
+    # Non-zero coefficients according to threshold
+    nonzero_mask = abs_coefs >= NONZERO_COEFF_THRESHOLD
+    n_nonzero = int(nonzero_mask.sum())
+    prop_nonzero = float(n_nonzero / coefs.shape[0])
+
+    # Variable with highest absolute coefficient
+    top_idx = int(abs_coefs.argmax())
+    top_variable = predictor_names[top_idx]
+    top_coef = float(coefs[top_idx])
+
+    return {
+        "marker_set": marker_set_name,
+        "split": split_id,
+        "r2": r2,
+        "mae": mae,
+        "n_nonzero": n_nonzero,
+        "prop_nonzero": prop_nonzero,
+        "top_variable": top_variable,
+        "top_coef": top_coef,
+    }

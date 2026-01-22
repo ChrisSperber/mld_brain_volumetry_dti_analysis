@@ -16,10 +16,8 @@ Outputs:
 # %%
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
-from sklearn.metrics import mean_absolute_error, r2_score
 
 from brain_stats_tools.config import (
     MAX_WORKERS,
@@ -29,15 +27,13 @@ from brain_stats_tools.config import (
 )
 from brain_stats_tools.elastic_net_utils import (
     N_PREDICTION_REPS,
-    NONZERO_COEFF_THRESHOLD,
-    TEST_SIZE_RATIO,
-    fit_elastic_net_bayes_opt,
-    train_test_split_indices,
+    _run_prediction,
 )
 from brain_stats_tools.mixed_model import (
     N_BOOTSTRAPS_DELTA_R2,
     MixedMarkerResult,
     fit_marker_mixed_model,
+    marker_result_to_dict,
 )
 from brain_stats_tools.utils import Cols, LongDFCols, find_unique_path
 
@@ -67,100 +63,6 @@ merged_markers_df = pd.merge(
 # %%
 # create df with MRIscore mirroring the prepared MRI marker CSVs' structure
 mri_score_pred_df = clinical_data_df[[LongDFCols.BASENAME, Cols.MRI_SCORE]]
-
-
-# %%
-# define helper for parallelisation - prediction
-def _run_prediction(  # noqa: PLR0913
-    split_id: int,
-    x: np.ndarray,
-    y: np.ndarray,
-    n_samples: int,
-    marker_set_name: str,
-    predictor_names: list[str],
-) -> dict[str, object]:
-    train_idx, test_idx = train_test_split_indices(
-        n=n_samples,
-        test_ratio=TEST_SIZE_RATIO,
-        seed=split_id,
-    )
-
-    x_train, x_test = x[train_idx], x[test_idx]
-    y_train, y_test = y[train_idx], y[test_idx]
-
-    # Fit model on training data
-    model = fit_elastic_net_bayes_opt(x_train, y_train)
-
-    # Test predictions
-    y_pred = model.predict(x_test)
-    r2 = float(r2_score(y_test, y_pred))
-    mae = float(mean_absolute_error(y_test, y_pred))
-
-    # Extract coefficients from the ElasticNet step inside the pipeline
-    elastic = model.named_steps[  # pyright: ignore[reportAttributeAccessIssue]
-        "elasticnet"
-    ]
-    coefs = elastic.coef_  # shape: (n_features,)
-
-    # Sanity check: coefficients should align with predictor_names
-    assert coefs.shape[0] == len(predictor_names)  # noqa: S101
-
-    abs_coefs = np.abs(coefs)
-
-    # Non-zero coefficients according to threshold
-    nonzero_mask = abs_coefs >= NONZERO_COEFF_THRESHOLD
-    n_nonzero = int(nonzero_mask.sum())
-    prop_nonzero = float(n_nonzero / coefs.shape[0])
-
-    # Variable with highest absolute coefficient
-    top_idx = int(abs_coefs.argmax())
-    top_variable = predictor_names[top_idx]
-    top_coef = float(coefs[top_idx])
-
-    return {
-        "marker_set": marker_set_name,
-        "split": split_id,
-        "r2": r2,
-        "mae": mae,
-        "n_nonzero": n_nonzero,
-        "prop_nonzero": prop_nonzero,
-        "top_variable": top_variable,
-        "top_coef": top_coef,
-    }
-
-
-# %%
-# define helper for parallelisation - mixed models
-def run_single_marker(
-    marker: str, full_data_df: pd.DataFrame
-) -> tuple[str, MixedMarkerResult]:
-    """Call function for parallel execution."""
-    res = fit_marker_mixed_model(
-        df=full_data_df,
-        marker_colname=marker,
-        target_var_colname=Cols.GMFC,
-        n_bootstrap=N_BOOTSTRAPS_DELTA_R2,
-    )
-    return marker, res
-
-
-def marker_result_to_dict(marker: str, res: MixedMarkerResult) -> dict:
-    """Flatten one MixedMarkerResult into a dict for DataFrame output."""
-    return {
-        "marker": marker,
-        "r2_null": res.r2_null,
-        "r2_full": res.r2_full,
-        "r2_delta": res.r2_delta,
-        "lrt_stat": res.lrt_stat,
-        "lrt_df": res.lrt_df,
-        "lrt_pvalue": res.lrt_pvalue,
-        "beta_marker": res.beta_marker,
-        "beta_marker_se": res.beta_marker_se,
-        "beta_marker_pvalue": res.beta_marker_pvalue,
-        "r2_delta_ci_low": res.r2_delta_ci_low,
-        "r2_delta_ci_high": res.r2_delta_ci_high,
-        "n_bootstrap": res.n_bootstrap,
-    }
 
 
 # %%

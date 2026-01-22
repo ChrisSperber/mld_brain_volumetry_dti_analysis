@@ -33,6 +33,8 @@ from brain_stats_tools.mixed_model import (
     N_BOOTSTRAPS_DELTA_R2,
     MixedMarkerResult,
     fit_marker_mixed_model,
+    marker_result_to_dict,
+    run_single_marker,
 )
 from brain_stats_tools.utils import Cols, LongDFCols
 
@@ -56,41 +58,6 @@ if N_BOOTSTRAPS_DELTA_R2 > 500:  # noqa: PLR2004
         f"WARNING: High number of bootstraps ({N_BOOTSTRAPS_DELTA_R2}) will lead to excessive "
         "computation time of several days!"
     )
-
-
-# %%
-# define helper for parallelisation
-def run_single_marker(
-    marker: str, full_data_df: pd.DataFrame
-) -> tuple[str, MixedMarkerResult]:
-    """Call function for parallel execution."""
-    res = fit_marker_mixed_model(
-        df=full_data_df,
-        marker_colname=marker,
-        target_var_colname=Cols.GMFC,
-        n_bootstrap=N_BOOTSTRAPS_DELTA_R2,
-    )
-    return marker, res
-
-
-def marker_result_to_dict(marker: str, res: MixedMarkerResult) -> dict:
-    """Flatten one MixedMarkerResult into a dict for DataFrame output."""
-    return {
-        "marker": marker,
-        "r2_null": res.r2_null,
-        "r2_full": res.r2_full,
-        "r2_delta": res.r2_delta,
-        "lrt_stat": res.lrt_stat,
-        "lrt_df": res.lrt_df,
-        "lrt_pvalue": res.lrt_pvalue,
-        "beta_marker": res.beta_marker,
-        "beta_marker_se": res.beta_marker_se,
-        "beta_marker_pvalue": res.beta_marker_pvalue,
-        "r2_delta_ci_low": res.r2_delta_ci_low,
-        "r2_delta_ci_high": res.r2_delta_ci_high,
-        "n_bootstrap": res.n_bootstrap,
-    }
-
 
 # %%
 # run analysis with parallelisation of n markers > 1

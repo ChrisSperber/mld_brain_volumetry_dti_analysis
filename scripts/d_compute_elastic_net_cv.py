@@ -13,10 +13,8 @@ Outputs:
 
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
-from sklearn.metrics import mean_absolute_error, r2_score
 
 from brain_stats_tools.config import (
     MAX_WORKERS,
@@ -25,10 +23,7 @@ from brain_stats_tools.config import (
 )
 from brain_stats_tools.elastic_net_utils import (
     N_PREDICTION_REPS,
-    NONZERO_COEFF_THRESHOLD,
-    TEST_SIZE_RATIO,
-    fit_elastic_net_bayes_opt,
-    train_test_split_indices,
+    _run_prediction,
 )
 from brain_stats_tools.utils import Cols, LongDFCols
 
@@ -41,66 +36,6 @@ csv_files = list(PREPARED_DATA_DIR.glob("*.csv"))
 clinical_data_df = pd.read_csv(CLINICAL_DATA_CLEANED_CSV, sep=";")
 
 PREDICTION_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-
-# %%
-# define helper for parallelisation
-def _run_prediction(  # noqa: PLR0913
-    split_id: int,
-    x: np.ndarray,
-    y: np.ndarray,
-    n_samples: int,
-    marker_set_name: str,
-    predictor_names: list[str],
-) -> dict[str, object]:
-    train_idx, test_idx = train_test_split_indices(
-        n=n_samples,
-        test_ratio=TEST_SIZE_RATIO,
-        seed=split_id,
-    )
-
-    x_train, x_test = x[train_idx], x[test_idx]
-    y_train, y_test = y[train_idx], y[test_idx]
-
-    # Fit model on training data
-    model = fit_elastic_net_bayes_opt(x_train, y_train)
-
-    # Test predictions
-    y_pred = model.predict(x_test)
-    r2 = float(r2_score(y_test, y_pred))
-    mae = float(mean_absolute_error(y_test, y_pred))
-
-    # Extract coefficients from the ElasticNet step inside the pipeline
-    elastic = model.named_steps[  # pyright: ignore[reportAttributeAccessIssue]
-        "elasticnet"
-    ]
-    coefs = elastic.coef_  # shape: (n_features,)
-
-    # Sanity check: coefficients should align with predictor_names
-    assert coefs.shape[0] == len(predictor_names)  # noqa: S101
-
-    abs_coefs = np.abs(coefs)
-
-    # Non-zero coefficients according to threshold
-    nonzero_mask = abs_coefs >= NONZERO_COEFF_THRESHOLD
-    n_nonzero = int(nonzero_mask.sum())
-    prop_nonzero = float(n_nonzero / coefs.shape[0])
-
-    # Variable with highest absolute coefficient
-    top_idx = int(abs_coefs.argmax())
-    top_variable = predictor_names[top_idx]
-    top_coef = float(coefs[top_idx])
-
-    return {
-        "marker_set": marker_set_name,
-        "split": split_id,
-        "r2": r2,
-        "mae": mae,
-        "n_nonzero": n_nonzero,
-        "prop_nonzero": prop_nonzero,
-        "top_variable": top_variable,
-        "top_coef": top_coef,
-    }
 
 
 # %%
