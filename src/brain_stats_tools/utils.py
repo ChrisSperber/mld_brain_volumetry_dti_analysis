@@ -71,6 +71,29 @@ class PredAnalysisOutputCols:
     TOP_VARIABLES_5: str = "Most_common_top_predictor_5"
 
 
+MRIScoreSubmarker: list = [
+    "frontal_p",
+    "frontal_c",
+    "frontal_s",
+    "parocc_p",
+    "parocc_c",
+    "parocc_s",
+    "temp_p",
+    "temp_c",
+    "temp_s",
+    "cc_genu",
+    "cc_splenium",
+    "caps_ant",
+    "caps_post",
+    "pons",
+    "atrophy",
+    "thal",
+    "basganglia",
+    "cerebell_wm",
+    "cerebell_atr",
+]
+
+
 def _split_long_df(df):
     region_df = df[df[LongDFCols.REGION_ID] != NOT_APPLICABLE].copy()
 
